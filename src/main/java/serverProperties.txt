@@ -1,0 +1,4 @@
+Server port = 5555
+Server IP = 192.168.0.4
+Accounts = 5
+Initial balance = 10 

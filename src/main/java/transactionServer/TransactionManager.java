@@ -123,6 +123,7 @@ public class TransactionManager implements MessageTypes{
         
         public void run()
         {
+            System.out.println("Thread is running from" + client.getInetAddress());
             // loop is left when transaction closes
             
                 // reading message try/catch

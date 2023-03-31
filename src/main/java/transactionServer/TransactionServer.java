@@ -4,23 +4,80 @@
  */
 package transactionServer;
 
+import account.Account;
+import account.AccountManager;
+import fileProperties.serverFile;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import transactionServer.TransactionManager.TransactionManagerWorker;
+
 /**
  *
  * @author lalom
  */
 public class TransactionServer {
     
+    private static String serverIp;
     
-    // table of transactions
+    private static int serverPort;
     
-    public TransactionServer( String host, int port )
+    /**
+     *
+     * @param File
+     */
+    public TransactionServer( serverFile File )
     {
+        // create an account manager for the server
+        AccountManager acc = new AccountManager();
+        // set up accounts
+        acc.createAccounts(File.getNumAccounts(),
+                                      File.getInitialBalances());
+        
+        System.out.println("Transaction Server");
+        
         // try / catch
+        try
+        {
+            // create a server socket to list and accept connection
+            ServerSocket transServSock = new ServerSocket( File.getPortNumber() );
+            
+            // set up a transaction manager
+            TransactionManager manager = new TransactionManager();
+            
+          // listen to connections / calls 
+            while(true)
+            {
+                System.out.println("Waiting for transactions");
+                // socket for clinet
+                Socket clientSocket = transServSock.accept();
+                
+                // send the socket to the manager
+                manager.runTransaction( clientSocket );
+               
+                
+            }
         
-        // listen to connections / calls 
+        // create a thread with client sockets   
+        } catch( Exception ex )
+        {
+            ex.printStackTrace();
+        }
         
-        // create a thread with client sockets 
+        
         
     }
+    
+    public static void main( String[] args) throws IOException{
+        serverFile file = new serverFile("C:\\Users\\lalom\\OneDrive\\Documents\\NetBeansProjects\\TransactionApp\\src\\main\\java\\serverProperties.txt" );
+        
+        new TransactionServer( file );
+        
+        
+    }
+    
+    // create inital accounts
+    
     
 }
