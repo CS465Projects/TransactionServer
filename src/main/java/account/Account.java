@@ -10,18 +10,30 @@ package account;
  */
 public class Account {
     
-    int accountNumber;
-    int balance;
+    private int accountNumber;
+    private int balance;
     
-    public Account()
+    public Account( int accountNumber, int balance )
     {
         // initalize account infomation
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+    }
+  
+    //
+    public int getBalance()
+    {
+        return balance;
     }
     
-    //
-    public static int getBalance()
+    public int getAccountNumber()
     {
-        return 0; // stub
+        return accountNumber;
+    }
+    
+    public void write( int amount )
+    {
+        balance += amount;
     }
     
     
