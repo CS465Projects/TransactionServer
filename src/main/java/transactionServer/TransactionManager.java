@@ -4,7 +4,7 @@
  */
 package transactionServer;
 
-import com.mycompany.transactionapp.MessageTypes;
+import message.MessageTypes;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
