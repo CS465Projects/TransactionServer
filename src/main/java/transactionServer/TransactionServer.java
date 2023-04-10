@@ -23,6 +23,19 @@ public class TransactionServer {
     
     private static int serverPort;
     
+    public static int messageCount;
+    
+    static boolean transactionView = false;  
+    
+    public static AccountManager accountManager;
+    
+    
+    
+    public static int getMessageCount() {
+        
+        return messageCount;
+    }
+    
     /**
      *
      * @param File
@@ -30,9 +43,9 @@ public class TransactionServer {
     public TransactionServer( serverFile File )
     {
         // create an account manager for the server
-        AccountManager acc = new AccountManager();
+        accountManager = new AccountManager();
         // set up accounts
-        acc.createAccounts(File.getNumAccounts(),
+        accountManager.createAccounts(File.getNumAccounts(),
                                       File.getInitialBalances());
         
         System.out.println("Transaction Server");

@@ -14,6 +14,8 @@ public class AccountManager {
     
     // table of all acounts
     public static ArrayList<Account> accounts;
+
+    
     
     // constructor
     public AccountManager()
@@ -52,10 +54,31 @@ public class AccountManager {
         }
     }
     
-    public static boolean readWriteRequests( int requests, int accountNumber )
-    {
-        return false; // stub 
+    public static Integer read(int accountNumber) {
+        int index, balance = 0;
+   
+        for( index=0; index < accounts.size(); index++)
+        {
+           if( accounts.get(index).getAccountNumber() == accountNumber )
+           {
+               balance = accounts.get(index).getBalance();
+           }
+        }
+        return balance;  
     }
     
     // create accounts
+
+    public void write(int accountNumber, int balance) {
+        int index;
+   
+        for( index=0; index < accounts.size(); index++)
+        {
+           if( accounts.get(index).getAccountNumber() == accountNumber )
+           {
+              accounts.get(index).write(balance);
+           }
+        }
+        
+    }
 }
