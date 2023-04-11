@@ -23,7 +23,7 @@ public class TransactionServer {
     
     private static int serverPort;
     
-    public static int messageCount;
+    public static int messageCount = 0;
     
     static boolean transactionView = false;  
     
@@ -59,17 +59,16 @@ public class TransactionServer {
             // set up a transaction manager
             TransactionManager manager = new TransactionManager();
             
-          // listen to connections / calls 
+            // listen to connections / calls 
             while(true)
             {
                 System.out.println("Waiting for transactions");
                 // socket for clinet
                 Socket clientSocket = transServSock.accept();
-                
+                messageCount++;
                 // send the socket to the manager
-                manager.runTransaction( clientSocket );
+                manager.runTransaction( clientSocket ); 
                
-                
             }
         
         // create a thread with client sockets   

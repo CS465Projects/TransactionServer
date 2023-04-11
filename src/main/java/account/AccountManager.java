@@ -54,6 +54,11 @@ public class AccountManager {
         }
     }
     
+    /**
+     *
+     * @param accountNumber
+     * @return
+     */
     public static Integer read(int accountNumber) {
         int index, balance = 0;
    

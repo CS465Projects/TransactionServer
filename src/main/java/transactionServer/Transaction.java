@@ -41,7 +41,7 @@ public class Transaction {
     
     public void setTransactionNumber( int transactionNumber )
     {
-        // set the transaction number 
+        this.transactionNumber = transactionNumber;
     }
     public int read ( int accountNumber )
     {
@@ -70,6 +70,7 @@ public class Transaction {
         if( !writeSet.containsKey(accountNumber))
         {
             writeSet.put(accountNumber, newBalance );
+            //
         }
         return oldBalance;
         
@@ -106,7 +107,7 @@ public class Transaction {
         log.append("\n").append(messageCount).append(" ").append(string);
         
         if(!TransactionServer.transactionView){
-            System.out.println(messageCount +"Transaction #" + transactionNumber);
+            System.out.println(messageCount +" Transaction #" + transactionNumber);
         }
         
         

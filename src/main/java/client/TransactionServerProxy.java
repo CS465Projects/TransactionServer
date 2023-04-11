@@ -68,7 +68,7 @@ public class TransactionServerProxy implements MessageTypes{
             transactionID = (Integer) readFromNet.readObject();
             
         } catch( IOException | ClassNotFoundException | NullPointerException ex) {
-            System.out.println( "[TransactionServerProxy.openTransaction] Error when wrtie/reading messages");
+            System.out.println( "[TransactionServerProxy.openTransaction] Error when write/reading messages");
             ex.printStackTrace();
         }
         
@@ -105,7 +105,7 @@ public class TransactionServerProxy implements MessageTypes{
      * @return the balance of the account
      * @throws transaction.server.lock.TransactionAbortedException
      */
-    public int read( int accountNumber ) // throws TransactionAbortedException
+    public int read( int accountNumber ) 
     {
         Message message = new Message(READ_REQUEST, accountNumber );
         
@@ -119,6 +119,7 @@ public class TransactionServerProxy implements MessageTypes{
         
         if( message.getType() ==  READ_REQUEST_RESPONSE )
         {
+            System.out.println("Amount recieved from requested account " +(Integer) message.getContent());
             return (Integer) message.getContent();
         }
         else
@@ -152,6 +153,10 @@ public class TransactionServerProxy implements MessageTypes{
         if(message.getType() == TRANSACTION_ABORTED)
         {
             System.out.println("Aborted Transaction");
+        }
+        else
+        {
+            System.out.println("Account balance " + (int) message.getContent());
         }
         
         

@@ -25,6 +25,7 @@ public interface MessageTypes {
     public static final int  WRITE_REQUEST         = 8;
     
     public static final int  READ_REQUEST_RESPONSE = 9;
+    public static final int  WRITE_REQUEST_RESPONSE = 9;
     
     
 }

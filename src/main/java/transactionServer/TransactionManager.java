@@ -4,6 +4,7 @@
  */
 package transactionServer;
 
+import account.AccountManager;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import message.Message;
 
 
@@ -112,6 +115,10 @@ public class TransactionManager implements MessageTypes{
                         transaction.log("[TransactionManager.validateTransaction] Transaction #" + transaction.getTransactionID() +
                                 "failed: r/w conflic on account #" + checkedAccount + "with Transaction #" +
                                 checkedTransaction.getTransactionID());
+                        
+                        System.out.println( "[TransactionManager.validateTransaction] Transaction #" + transaction.getTransactionID() +
+                                "failed: r/w conflic on account #" + checkedAccount + "with Transaction #" +
+                                checkedTransaction.getTransactionID());
                         return false;
                     }
                 }
@@ -120,6 +127,7 @@ public class TransactionManager implements MessageTypes{
         
         
         transaction.log("[TransactionManager.validateTransaction] Transaction #" + transaction.getTransactionID() + " successfully validated");
+        System.out.println("[TransactionManager.validateTransaction] Transaction #" + transaction.getTransactionID() + " successfully validated");
         return true ;
     }
     
@@ -190,12 +198,12 @@ public class TransactionManager implements MessageTypes{
         {
             System.out.println("Thread is running from" + client.getInetAddress());
             // loop is left when transaction closes
-            while(true)
+            while(keepgoing)
             {
                 try
                 {
                     message = (Message) readFromNet.readObject();
-                    System.out.println("Message from client: "+message.getType());
+                    
                 }
                 catch (IOException | ClassNotFoundException e )
                         {
@@ -204,6 +212,7 @@ public class TransactionManager implements MessageTypes{
                             System.exit(0);
                             return;
                         } 
+              
                 // prcoessing message
                 switch (message.getType())
                 {
@@ -228,13 +237,70 @@ public class TransactionManager implements MessageTypes{
                         }
                         transaction.log("[TransactionManagerWorker.run]" + "OPEN_TRANSACTION" + "#" +
                                 transaction.getTransactionID() );
+                        
+                        System.out.println("[TransactionManagerWorker.run]" + "OPEN_TRANSACTION" + " #" +
+                                transaction.getTransactionID());
                         break;
+                        
+                // case WRITE_REQUEST
+                        
+                        
+                // case READ_REQUEST
+                        
+                    case READ_REQUEST, WRITE_REQUEST:
+                        synchronized( runningTransactions )
+                        {
+                            int accountRecieved = 0;
+                            int sendAmount = 0;
+                            Message sendMessage = null;
+                            
+                            if( message.getType() == READ_REQUEST )
+                            {
+                              accountRecieved = (int) message.getContent();
+                              sendAmount = transaction.read(accountRecieved);
+                              sendMessage = new Message( READ_REQUEST_RESPONSE, sendAmount );
+                              
+                              try{
+                                writeToNet.writeObject( sendMessage );
+                            } catch( IOException ex ) {
+                              System.out.println( "[TransactionServerProxy.READ_RESPONSE] Error Occurred: IOException ");
+                              ex.printStackTrace();
+                              System.err.print("\n\n");  
+                                 }
+                            }
+                            else{
+                                Object[] array = (Object[]) message.getContent();
+                                int amountRecieved = (int) array[1];
+                                accountRecieved = (int) array[0];
+                                sendAmount = transaction.write(accountRecieved, amountRecieved);
+                                sendMessage = new Message( WRITE_REQUEST_RESPONSE, sendAmount );
+                                
+                                try{
+                                writeToNet.writeObject( sendMessage );
+                            } catch( IOException ex ) {
+                              System.out.println( "[TransactionServerProxy.WRITE_RESPONSE] Error Occurred: IOException ");
+                              ex.printStackTrace();
+                              System.err.print("\n\n");  
+                                 }
+                                
+                            }
+                            // loop throguh accounts
+                            
+                            // send balance
+                            
+                        }
+                        
+                        break;
+                        
+                        
                         
             
                 // case CLOSE_TRANSACTION
                         case CLOSE_TRANSACTION:
                         synchronized (runningTransactions)
                         {
+                            keepgoing = false; 
+                            
                             runningTransactions.remove(transaction);
                             
                             if( validateTransaction(transaction))
@@ -248,6 +314,10 @@ public class TransactionManager implements MessageTypes{
                                 // tell client transaciton committed
                                 try{
                                     writeToNet.writeObject( TRANSACTION_COMMITTED );
+                                    writeToNet.close();  
+                                    readFromNet.close();
+                                    client.close();
+                                    
                                 }
                                 catch (IOException e) {
                                     System.err.println("{TransactionMangerWorker.run] CLOSED_TRANSACTION #" + transaction.getTransactionID() + "- Error with"
@@ -256,9 +326,28 @@ public class TransactionManager implements MessageTypes{
                                 }
                                 transaction.log("[TransactionManagerWorker.run]" + "CLOSE_TRANSACTION" + "#" +
                                 transaction.getTransactionID() );
+                                
+                                System.out.println("[TransactionManagerWorker.run]" + "CLOSE_TRANSACTION" + "#" +
+                                transaction.getTransactionID());
                             }
-                        }
-                        
+                            else
+                            {
+                                try{
+                                    writeToNet.writeObject( TRANSACTION_ABORTED );
+                                    writeToNet.close();  
+                                    readFromNet.close();
+                                    client.close();
+                                    
+                                }
+                                catch (IOException e) {
+                                    System.err.println("{TransactionMangerWorker.run] CLOSED_TRANSACTION #" + transaction.getTransactionID() + "- Error with"
+                                    + "Aborting transactionID");
+                                    
+                                }
+                            }
+      
+                                 
+                        } 
            
                         break;
                 }
